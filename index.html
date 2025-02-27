@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Invitee List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            overflow-x: auto;
+            display: block;
+            white-space: nowrap;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        input,
+        select {
+            margin-bottom: 10px;
+            padding: 10px;
+            width: 100%;
+            max-width: 300px;
+            display: block;
+            box-sizing: border-box;
+        }
+
+        @media screen and (max-width: 600px) {
+            table {
+                font-size: 14px;
+            }
+
+            th,
+            td {
+                padding: 6px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Invitee List</h2>
+    <input type="text" id="search" placeholder="Search by name..." onkeyup="filterTable()">
+    <select id="rsvpFilter" onchange="filterTable()">
+        <option value="">Filter by RSVP</option>
+        <option value="Attending">Confirmed</option>
+        <option value="Pending">Pending</option>
+    </select>
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>RSVP Status</th>
+                    <th>WhatsApp</th>
+                </tr>
+            </thead>
+            <tbody id="inviteeTable">
+                <!-- Data will be inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwJs6BmCqvUQLJ9shyT1k3XDR4CqETkRL2fKNmqjGV95gdt77Pb-GVv8gRENFHFCy8/exec';
+
+        async function fetchInvitees() {
+            try {
+                const response = await fetch(SHEET_URL);
+                const data = await response.json();
+                populateTable(data);
+                console.log(data)
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        function populateTable(data) {
+            const tableBody = document.getElementById('inviteeTable');
+            tableBody.innerHTML = '';
+
+            data.forEach(invitee => {
+                if (invitee.name !== undefined) {
+                    let whatsappLink = invitee.whatsApp
+                        ? `<a href="${invitee.whatsApp}" target="_blank">Send WhatsApp</a>`
+                        : 'N/A';
+
+                    let row = `<tr>
+                <td>${invitee.name}</td>
+                <td>${invitee.phone}</td>
+                <td>${invitee.rsvp}</td>
+                <td>${whatsappLink}</td>
+            </tr>`;
+
+                    tableBody.innerHTML += row;
+                }
+            });
+        }
+
+        function filterTable() {
+            const searchInput = document.getElementById('search').value.toLowerCase();
+            const rsvpFilter = document.getElementById('rsvpFilter').value;
+            const rows = document.querySelectorAll('#inviteeTable tr');
+            rows.forEach(row => {
+                const name = row.cells[0].textContent.toLowerCase();
+                const rsvpStatus = row.cells[2].textContent;
+                const nameMatch = name.includes(searchInput);
+                const rsvpMatch = rsvpFilter === "" || rsvpStatus === rsvpFilter;
+                row.style.display = nameMatch && rsvpMatch ? '' : 'none';
+            });
+        }
+
+        fetchInvitees();
+    </script>
+</body>
+
+</html>
