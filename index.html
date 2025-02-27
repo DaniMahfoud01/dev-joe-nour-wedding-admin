@@ -186,39 +186,39 @@
         function closeModal() {
             document.getElementById('inviteeModal').style.display = 'none';
         }
-        document.getElementById('inviteeForm').addEventListener('submit', async function (event) {
-            event.preventDefault();
+        // document.getElementById('inviteeForm').addEventListener('submit', async function (event) {
+        //     event.preventDefault();
 
-            const name = document.getElementById('inviteeName').value;
-            const maxGuests = document.getElementById('maxGuests').value;
-            const phone = document.getElementById('phoneNumber').value;
+        //     const name = document.getElementById('inviteeName').value;
+        //     const maxGuests = document.getElementById('maxGuests').value;
+        //     const phone = document.getElementById('phoneNumber').value;
 
-            const postData = {
-                name: name,
-                maxGuests: parseInt(maxGuests),
-                phone: phone
-            };
+        //     const postData = {
+        //         name: name,
+        //         maxGuests: parseInt(maxGuests),
+        //         phone: phone
+        //     };
 
-            try {
-                const response = await fetch(SHEET_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(postData)
-                });
+        //     try {
+        //         const response = await fetch(SHEET_URL, {
+        //             method: 'POST',
+        //             headers: { 'Content-Type': 'application/json' },
+        //             body: JSON.stringify(postData)
+        //         });
 
-                const result = await response.json();
-                document.getElementById('responseMessage').textContent = result.message;
+        //         const result = await response.json();
+        //         document.getElementById('responseMessage').textContent = result.message;
 
-                if (result.status === "success") {
-                    document.getElementById('inviteeForm').reset();
-                    closeModal();
-                    fetchInvitees();
-                }
-            } catch (error) {
-                document.getElementById('responseMessage').textContent = "Error submitting data.";
-                console.error("Submission error:", error);
-            }
-        });
+        //         if (result.status === "success") {
+        //             document.getElementById('inviteeForm').reset();
+        //             closeModal();
+        //             fetchInvitees();
+        //         }
+        //     } catch (error) {
+        //         document.getElementById('responseMessage').textContent = "Error submitting data.";
+        //         console.error("Submission error:", error);
+        //     }
+        // });
 
     </script>
 </body>
