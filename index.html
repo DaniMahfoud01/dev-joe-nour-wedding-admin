@@ -51,6 +51,42 @@
                 padding: 6px;
             }
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -62,6 +98,21 @@
         <option value="Confirmed">Confirmed</option>
         <option value="Pending">Pending</option>
     </select>
+    <button onclick="openModal()">Add New Invitee</button>
+    <div id="inviteeModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>Add New Invitee</h3>
+            <form id="inviteeForm">
+                <input type="text" id="inviteeName" placeholder="Full Name" required>
+                <input type="number" id="maxGuests" placeholder="Max Guests" min="1" required>
+                <input type="tel" id="phoneNumber" placeholder="Phone Number" required>
+                <button type="submit">Add Invitee</button>
+            </form>
+            <p id="responseMessage"></p>
+        </div>
+    </div>
+
     <div style="overflow-x: auto;">
         <table>
             <thead>
@@ -128,6 +179,48 @@
         }
 
         fetchInvitees();
+        function openModal() {
+            document.getElementById('inviteeModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('inviteeModal').style.display = 'none';
+        }
+        document.getElementById('inviteeForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const name = document.getElementById('inviteeName').value;
+            const maxGuests = document.getElementById('maxGuests').value;
+            const phone = document.getElementById('phoneNumber').value;
+
+            const postData = {
+                name: name,
+                maxGuests: parseInt(maxGuests),
+                phone: phone
+            };
+
+            try {
+                const response = await fetch(SHEET_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(postData)
+                });
+
+                const result = await response.json();
+                document.getElementById('responseMessage').textContent = result.message;
+
+                if (result.status === "success") {
+                    document.getElementById('inviteeForm').reset();
+                    closeModal();
+                    fetchInvitees();
+                }
+            } catch (error) {
+                document.getElementById('responseMessage').textContent = "Error submitting data.";
+                console.error("Submission error:", error);
+            }
+        });
+
     </script>
 </body>
 
